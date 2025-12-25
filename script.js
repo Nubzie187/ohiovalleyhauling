@@ -53,7 +53,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 
-    // Handle form submission
+    // Handle form submission to Formspree
     form.addEventListener('submit', function(e) {
         e.preventDefault();
 
@@ -64,45 +64,46 @@ document.addEventListener('DOMContentLoaded', function() {
         const location = document.getElementById('location').value.trim();
         const details = document.getElementById('details').value.trim();
 
-        // Build email body with clear formatting
-        const emailBody = `New Quote Request from Ohio Valley Hauling Website
+        // Prepare form data for Formspree
+        const formData = new FormData();
+        formData.append('name', name);
+        formData.append('phone', phone);
+        formData.append('job_type', jobTypeLabels[jobType] || jobType);
+        formData.append('location', location);
+        formData.append('details', details || 'N/A');
 
-Name: ${name}
-Phone: ${phone}
-Job Type: ${jobTypeLabels[jobType] || jobType}
-Location: ${location}
-Project Details: ${details || 'N/A'}
+        // Submit to Formspree
+        fetch('https://formspree.io/f/mlgerlop', {
+            method: 'POST',
+            body: formData,
+            headers: {
+                'Accept': 'application/json'
+            }
+        })
+        .then(function(response) {
+            if (response.ok) {
+                // Hide form and show success message
+                form.style.display = 'none';
+                successMessage.style.display = 'block';
 
----
-Submitted via website form`;
+                // Track form submission in GA4
+                // This fires when the form is successfully submitted and success message is shown
+                trackGA4Event('form_submit', 'lead', 'quote_form');
 
-        // Create mailto link to ohiovalleyholdings@gmail.com
-        const emailSubject = encodeURIComponent('New Quote Request - ' + (jobTypeLabels[jobType] || 'General'));
-        const emailBodyEncoded = encodeURIComponent(emailBody);
-        const mailtoLink = `mailto:ohiovalleyholdings@gmail.com?subject=${emailSubject}&body=${emailBodyEncoded}`;
+                // Scroll to success message
+                successMessage.scrollIntoView({ behavior: 'smooth', block: 'center' });
 
-        // Open mailto link without redirecting the page
-        // Create a temporary link element, click it, then remove it
-        const tempLink = document.createElement('a');
-        tempLink.href = mailtoLink;
-        tempLink.style.display = 'none';
-        document.body.appendChild(tempLink);
-        tempLink.click();
-        document.body.removeChild(tempLink);
-
-        // Hide form and show success message
-        form.style.display = 'none';
-        successMessage.style.display = 'block';
-
-        // Track form submission in GA4
-        // This fires when the form is successfully submitted and success message is shown
-        trackGA4Event('form_submit', 'lead', 'quote_form');
-
-        // Scroll to success message
-        successMessage.scrollIntoView({ behavior: 'smooth', block: 'center' });
-
-        // Reset form (for when it's shown again if needed)
-        form.reset();
+                // Reset form
+                form.reset();
+            } else {
+                // Handle error (optional - could show error message)
+                alert('There was a problem submitting your request. Please try again or call us directly.');
+            }
+        })
+        .catch(function(error) {
+            // Handle network error
+            alert('There was a problem submitting your request. Please try again or call us directly.');
+        });
     });
 });
 
