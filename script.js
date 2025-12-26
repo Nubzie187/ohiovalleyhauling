@@ -10,8 +10,8 @@ document.addEventListener('DOMContentLoaded', function() {
     
     /**
      * Helper function to send GA4 events
-     * @param {string} eventName - The event name (e.g., 'call_click', 'form_submit')
-     * @param {string} category - Event category (e.g., 'lead')
+     * @param {string} eventName - The event name (e.g., 'click_call', 'form_submit')
+     * @param {string} category - Event category (e.g., 'phone', 'lead')
      * @param {string} label - Event label for additional context
      */
     function trackGA4Event(eventName, category, label) {
@@ -28,7 +28,10 @@ document.addEventListener('DOMContentLoaded', function() {
     const phoneLinks = document.querySelectorAll('a[href^="tel:"]');
     phoneLinks.forEach(function(phoneLink) {
         phoneLink.addEventListener('click', function() {
-            trackGA4Event('call_click', 'lead', 'phone');
+            // Extract phone number from href (remove "tel:" prefix)
+            const phoneNumber = this.getAttribute('href').replace('tel:', '');
+            // Track click-to-call event with phone number as label
+            trackGA4Event('click_call', 'phone', phoneNumber);
         });
     });
 
