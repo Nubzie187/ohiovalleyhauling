@@ -208,7 +208,7 @@ header .container {
    ============================================ */
 .hero {
     position: relative;
-    background-image: url('/images/section-hero.png');
+    background-image: url("images/section-hero.png");
     background-size: cover;
     background-position: center;
     background-repeat: no-repeat;
